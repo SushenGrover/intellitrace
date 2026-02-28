@@ -1,0 +1,45 @@
+# ═══════════════════════════════════════════════════════════════════
+# render.yaml – Render Blueprint (Infrastructure as Code)
+# Deploy the full IntelliTrace stack with one click
+# ═══════════════════════════════════════════════════════════════════
+
+databases:
+  - name: intellitrace-db
+    plan: free
+    databaseName: intellitrace
+    user: intellitrace
+
+services:
+  # ── FastAPI Backend ─────────────────────────────────────────────
+  - type: web
+    name: intellitrace-backend
+    runtime: python
+    plan: free
+    rootDir: backend
+    buildCommand: "chmod +x build.sh && ./build.sh"
+    startCommand: "uvicorn app.main:app --host 0.0.0.0 --port $PORT"
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: intellitrace-db
+          property: connectionString
+      - key: PYTHON_VERSION
+        value: "3.11.8"
+      - key: ENVIRONMENT
+        value: production
+
+  # ── React Frontend (Static Site) ───────────────────────────────
+  - type: web
+    name: intellitrace-frontend
+    runtime: static
+    plan: free
+    rootDir: frontend
+    buildCommand: "npm install && npm run build"
+    staticPublishPath: build
+    envVars:
+      - key: REACT_APP_API_URL
+        value: https://intellitrace-backend.onrender.com
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html

@@ -302,7 +302,7 @@ intellitrace/
 
 ---
 
-## 👥 Team Members
+## Team Members
 
 |  #  | Name             | Registration No. |
 | :-: | ---------------- | :--------------: |

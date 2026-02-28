@@ -3,6 +3,8 @@ IntelliTrace – FastAPI Application Entry Point
 Multi-Tier Supply Chain Fraud Detection & Management
 """
 
+import os
+from pathlib import Path
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
@@ -12,11 +14,38 @@ from app.routes import invoices, fraud, analytics, alerts, dashboard
 from app.websocket import ws_router
 
 
+async def _run_sql_file(conn, filepath: Path):
+    """Execute a raw SQL file against the database."""
+    if filepath.exists():
+        sql = filepath.read_text()
+        from sqlalchemy import text
+        # Split on semicolons and execute each statement
+        for statement in sql.split(";"):
+            stmt = statement.strip()
+            if stmt and not stmt.startswith("--"):
+                try:
+                    await conn.execute(text(stmt))
+                except Exception:
+                    pass  # ignore if already exists (enums, tables, data)
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Startup / shutdown lifecycle."""
-    # Create tables if they don't exist
     async with engine.begin() as conn:
+        # Try to run init.sql + seed.sql (needed on Render; skipped in Docker
+        # where Postgres handles it via /docker-entrypoint-initdb.d/)
+        app_dir = Path(__file__).resolve().parent
+        # Try: repo_root/db/  (works on Render & local dev)
+        db_dir = app_dir.parent.parent / "db"
+        if not db_dir.exists():
+            # Fallback: backend/db/ (if copied during build)
+            db_dir = app_dir.parent / "db"
+        init_sql = db_dir / "init.sql"
+        seed_sql = db_dir / "seed.sql"
+        await _run_sql_file(conn, init_sql)
+        await _run_sql_file(conn, seed_sql)
+        # Also let SQLAlchemy create any tables not covered by init.sql
         await conn.run_sync(Base.metadata.create_all)
     yield
     await engine.dispose()
