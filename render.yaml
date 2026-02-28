@@ -28,9 +28,10 @@ services:
       - key: ENVIRONMENT
         value: production
 
-# ── React Frontend (Static Site) ───────────────────────────────
-staticSites:
-  - name: intellitrace-frontend
+  # ── React Frontend (Static Site) ───────────────────────────────
+  - type: web
+    name: intellitrace-frontend
+    runtime: static
     rootDir: frontend
     buildCommand: "npm install && npm run build"
     staticPublishPath: build
