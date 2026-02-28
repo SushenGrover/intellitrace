@@ -14,7 +14,7 @@ services:
   - type: web
     name: intellitrace-backend
     runtime: python
-    plan: free
+    plan: starter
     rootDir: backend
     buildCommand: "chmod +x build.sh && ./build.sh"
     startCommand: "uvicorn app.main:app --host 0.0.0.0 --port $PORT"
@@ -28,11 +28,9 @@ services:
       - key: ENVIRONMENT
         value: production
 
-  # ── React Frontend (Static Site) ───────────────────────────────
-  - type: web
-    name: intellitrace-frontend
-    runtime: static
-    plan: free
+# ── React Frontend (Static Site) ───────────────────────────────
+staticSites:
+  - name: intellitrace-frontend
     rootDir: frontend
     buildCommand: "npm install && npm run build"
     staticPublishPath: build
