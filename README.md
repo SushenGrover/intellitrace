@@ -302,6 +302,16 @@ intellitrace/
 
 ---
 
+## 👥 Team Members
+
+|  #  | Name             | Registration No. |
+| :-: | ---------------- | :--------------: |
+|  1  | Sushen Grover    |    23BCE1728     |
+|  2  | Dhruv Dhoundiyal |    23BCE1581     |
+|  3  | Darshil Agarwal  |    23BCE1741     |
+
+---
+
 <div align="center">
 
 **Built for IntelliTrace Hackathon by Team Secret Weapon** 🏆
